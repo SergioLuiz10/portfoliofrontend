@@ -13,34 +13,6 @@ interface Message {
   timestamp: Date
 }
 
-const predefinedResponses: Record<string, { pt: string; en: string }> = {
-  "Quanto tempo de experiência com FastAPI?": {
-    pt: "O Sérgio trabalha com FastAPI há cerca de 1 ano de forma intensiva. No Crom.IA (MG3 Inovação), construiu desde o zero o pipeline RAG completo: endpoints de chat, ingestão de PDFs com deduplicação por hash MD5, integração com LangChain e PGVector, e um serviço standalone de análise de imagem com GPT-4o Vision. Também usa FastAPI no projeto pessoal FreelancerOS.",
-    en: "Sérgio has been working intensively with FastAPI for about 1 year. At Crom.IA (MG3 Inovação), he built from scratch the complete RAG pipeline: chat endpoints, PDF ingestion with MD5 hash deduplication, LangChain and PGVector integration, and a standalone image analysis service with GPT-4o Vision. He also uses FastAPI in his personal project FreelancerOS."
-  },
-  "Me fala sobre o projeto Crom.IA": {
-    pt: "Crom.IA é uma plataforma de assistente de IA para clientes do setor de cromatografia analítica (HPLC, GC). A arquitetura usa agentes especializados orquestrados em n8n, com um Orquestrador central que roteia para módulos: Troubleshooting (diagnóstico em 4 estágios com escalação por email), Estudo Guiado, Gestão e análise de imagem. Backend em FastAPI + LangChain + PGVector + OpenAI, com Edge Functions Supabase autenticadas, e deploy via Docker no EasyPanel.",
-    en: "Crom.IA is an AI assistant platform for analytical chromatography clients (HPLC, GC). The architecture uses specialized agents orchestrated in n8n, with a central Orchestrator routing to modules: Troubleshooting (4-stage diagnosis with email escalation), Guided Study, Management and image analysis. Backend in FastAPI + LangChain + PGVector + OpenAI, with authenticated Supabase Edge Functions, deployed via Docker on EasyPanel."
-  },
-  "Qual sua stack favorita pra construir RAG?": {
-    pt: "FastAPI no backend, LangChain pra orquestração, PostgreSQL com PGVector pra vector store (mais barato e simples que Pinecone), OpenAI ou Anthropic pros LLMs, e Docker pro deploy. Pra ingestão de documentos, usa hash MD5 pra deduplicação e chunking semântico. Tudo isso já foi aplicado em produção no Crom.IA.",
-    en: "FastAPI for the backend, LangChain for orchestration, PostgreSQL with PGVector for vector store (cheaper and simpler than Pinecone), OpenAI or Anthropic for LLMs, and Docker for deployment. For document ingestion, uses MD5 hash for deduplication and semantic chunking. All of this has been applied in production at Crom.IA."
-  },
-  "Você tem experiência com agentes de IA?": {
-    pt: "Sim. No Crom.IA construiu uma arquitetura multi-agente em n8n com Orquestrador roteando para agentes especializados, cada um com prompt próprio, ferramentas específicas e fluxos de escalação. No FreelancerOS, agentes interpretam linguagem natural pra criar e atualizar tarefas no ClickUp via FastAPI + n8n.",
-    en: "Yes. At Crom.IA he built a multi-agent architecture in n8n with an Orchestrator routing to specialized agents, each with its own prompt, specific tools and escalation flows. At FreelancerOS, agents interpret natural language to create and update tasks in ClickUp via FastAPI + n8n."
-  },
-  "Quais certificações de IA você tem?": {
-    pt: "Em IA: 'LangChain e Python' (Alura, 2026) e 'Python: Inteligência Artificial Aplicada' (Alura, 2026). Também tem formação em análise de dados com Python/SQL, Node.js e Spring Boot. Cursando ADS na UCSal com conclusão prevista pra dezembro/2026.",
-    en: "In AI: 'LangChain and Python' (Alura, 2026) and 'Python: Applied Artificial Intelligence' (Alura, 2026). Also has training in data analysis with Python/SQL, Node.js and Spring Boot. Pursuing a degree in Systems Analysis at UCSal with expected completion in December/2026."
-  }
-}
-
-const defaultResponse = {
-  pt: "Boa pergunta! No momento estou em modo demo com respostas pré-definidas. Em breve terei acesso completo ao CV e projetos do Sérgio. Enquanto isso, experimenta as perguntas sugeridas ou entra em contato direto na seção abaixo!",
-  en: "Good question! Currently I'm in demo mode with predefined answers. Soon I'll have full access to Sérgio's CV and projects. In the meantime, try the suggested questions or contact him directly in the section below!"
-}
-
 const suggestedQuestions = {
   pt: [
     "Quanto tempo de experiência com FastAPI?",
@@ -100,58 +72,6 @@ export function AskSergio() {
     ])
   }, [language])
 
-  const getResponse = (question: string): string => {
-    const ptQuestion = Object.keys(predefinedResponses).find(
-      (q) => q.toLowerCase() === question.toLowerCase()
-    )
-    
-    if (ptQuestion) {
-      return language === "pt" 
-        ? predefinedResponses[ptQuestion].pt 
-        : predefinedResponses[ptQuestion].en
-    }
-
-    const enToPortuguese: Record<string, string> = {
-      "how much experience with fastapi?": "Quanto tempo de experiência com FastAPI?",
-      "tell me about the crom.ia project": "Me fala sobre o projeto Crom.IA",
-      "what's your favorite stack for building rag?": "Qual sua stack favorita pra construir RAG?",
-      "do you have experience with ai agents?": "Você tem experiência com agentes de IA?",
-      "what ai certifications do you have?": "Quais certificações de IA você tem?"
-    }
-
-    const mappedQuestion = enToPortuguese[question.toLowerCase()]
-    if (mappedQuestion && predefinedResponses[mappedQuestion]) {
-      return language === "pt"
-        ? predefinedResponses[mappedQuestion].pt
-        : predefinedResponses[mappedQuestion].en
-    }
-
-    return language === "pt" ? defaultResponse.pt : defaultResponse.en
-  }
-
-  const streamResponse = async (response: string) => {
-    setIsStreaming(true)
-    setStreamingText("")
-    
-    for (let i = 0; i <= response.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 15))
-      setStreamingText(response.slice(0, i))
-    }
-    
-    setIsStreaming(false)
-    setStreamingText("")
-    
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        role: "assistant",
-        content: response,
-        timestamp: new Date()
-      }
-    ])
-  }
-
   const sendMessage = async (text: string) => {
     if (!text.trim() || isTyping || isStreaming) return
 
@@ -167,11 +87,69 @@ export function AskSergio() {
     setShowSuggestions(false)
     setIsTyping(true)
 
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    setIsTyping(false)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+    const langParam = language === "pt" ? "português" : "english"
 
-    const response = getResponse(text.trim())
-    await streamResponse(response)
+    try {
+      const response = await fetch(`${apiUrl}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text.trim(), language: langParam }),
+      })
+
+      setIsTyping(false)
+
+      if (!response.ok || !response.body) {
+        const errMsg =
+          language === "pt"
+            ? "Ops, não consegui conectar ao servidor. Tente novamente."
+            : "Oops, couldn't connect to the server. Please try again."
+        setMessages((prev) => [
+          ...prev,
+          { id: Date.now().toString(), role: "assistant", content: errMsg, timestamp: new Date() },
+        ])
+        return
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let fullText = ""
+
+      setIsStreaming(true)
+      setStreamingText("")
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value, { stream: true })
+        fullText += chunk
+        setStreamingText(fullText)
+      }
+
+      setIsStreaming(false)
+      setStreamingText("")
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: fullText,
+          timestamp: new Date(),
+        },
+      ])
+    } catch {
+      setIsTyping(false)
+      setIsStreaming(false)
+      setStreamingText("")
+      const errMsg =
+        language === "pt"
+          ? "Ops, não consegui conectar ao servidor. Tente novamente."
+          : "Oops, couldn't connect to the server. Please try again."
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString(), role: "assistant", content: errMsg, timestamp: new Date() },
+      ])
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -337,7 +315,7 @@ export function AskSergio() {
                         key={index}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => sendMessage(language === "pt" ? suggestedQuestions.pt[index] : suggestedQuestions.pt[index])}
+                        onClick={() => sendMessage(language === "pt" ? suggestedQuestions.pt[index] : suggestedQuestions.en[index])}
                         className="px-3 py-1.5 text-xs rounded-full border border-primary/30 text-foreground hover:bg-primary/10 transition-colors"
                       >
                         {question}
