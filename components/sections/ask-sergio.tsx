@@ -19,14 +19,14 @@ const suggestedQuestions = {
     "Me fala sobre o projeto Crom.IA",
     "Qual sua stack favorita pra construir RAG?",
     "Você tem experiência com agentes de IA?",
-    "Quais certificações de IA você tem?"
+    "O Sérgio está disponível para novas oportunidades?"
   ],
   en: [
     "How much experience with FastAPI?",
     "Tell me about the Crom.IA project",
     "What's your favorite stack for building RAG?",
     "Do you have experience with AI agents?",
-    "What AI certifications do you have?"
+    "Is Sérgio available for new opportunities?"
   ]
 }
 
